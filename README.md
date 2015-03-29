@@ -42,14 +42,13 @@ Maybe a browser extention.... probably for youtube etc.
 
 ##### Step 3:
 Profit
-Also 
 
 
 ## Potential Security Problems
 
 URL protocal handlers are risky business.
 
-### Python command injection
+##### Python command injection
 
 Windows might be a bigger problem as I fairly sure the shell won't run more than one executable.
 unless...
@@ -70,14 +69,14 @@ In theory the windows shell would execute:
 Maybe py2exe or nuikta can be used to compile an executable to remove the possible python -c exploit.
 If it can be proven.
 
-### file url and additional parameters
+##### File url and additional parameters
 
 VLC allows file:// urls as well as a number of complex arguments for transcoding that shouldn't be exposed.
 
 Be stricter about what passes for a video url?
 Url encode before putting on the commandline?
 
-### Shell injection
+##### Shell injection
 
 Lack of value scrubbing, leaves a nasty exploit vector.
 On posix systems;
