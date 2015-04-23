@@ -4,7 +4,7 @@
 import sys, re
 from subprocess import Popen
 import json
-from win32api import GetSystemMetrics
+import platform
 
 
 try:
@@ -15,12 +15,20 @@ except ImportError:
     # Pythonn 3.4 untested
     from urllib.parse import urlparse, quote, urlencode
 
-try:
-    # Python 2.7
-    import _winreg as wr
-except ImportError:
-    # Pythonn 3.4
-    import winreg as wr
+CURRENT_OS = platform.system().lower().strip()
+OS_COMMAND_PARENTH = "'" 
+OS_COMMAND_ESCAPE = '\\'
+
+if CURRENT_OS == "windows":
+    from win32api import GetSystemMetrics
+    OS_COMMAND_PARENTH = '"' 
+    OS_COMMAND_ESCAPE = '^'
+    try:
+        # Python 2.7
+        import _winreg as wr
+    except ImportError:
+        # Pythonn 3.4
+        import winreg as wr
 
 
 
@@ -56,29 +64,50 @@ class VLCArgumentCompile(object):
         TODO
         * Scrub Everything to sane values or die.
         """
+            
         argl = []
         ad = self.arg_dict
+        def appendArg(fstring, a=None):
+            """
+            Adds strings to argl list (defined in localscope above)
+            _fstring_ is a format string if _a_ is defined, other wise just 
+            append _fstring_ to the list.
+            In theory it should escape quote or double characters..
+            but seeing as we use Popen to send arguments as a list,
+            I think maybe the str.replace is usless or even error inducing.
+            """
+            arg = ""
+            if a == None:
+                arg = fstring.replace(OS_COMMAND_PARENTH, "{}{}".format(
+                    OS_COMMAND_ESCAPE, OS_COMMAND_PARENTH) )
+                argl.append(arg)
+            else:
+                arg = a.replace(OS_COMMAND_PARENTH, "{}{}".format(
+                    OS_COMMAND_ESCAPE, OS_COMMAND_PARENTH))
+                arg = fstring.format(a)
+                argl.append(arg)
+
         if "fullscreen" in ad:
-            argl.append("--fullscreen")
+            appendArg("--fullscreen")
         if "ontop" in ad:
-            argl.append("--video-on-top")
+            appendArg("--video-on-top")
         if "minimal" in ad:
-            argl.append("--qt-minimal-view")
+            appendArg("--qt-minimal-view")
         if "no_tree" in ad:
-            argl.append('--no-playlist-tree')
+            appendArg('--no-playlist-tree')
         if 'width' in ad:
-            argl.append('--width={}'.format(ad['width']))
+            appendArg('--width={}', ad['width'])
         if 'height' in ad:
-            argl.append('--height={}'.format(ad['height']))
+            appendArg('--height={}', ad['height'])
         if 'video_x' in ad:
-            argl.append('--video-x={}'.format(ad['video_x']))
+            appendArg('--video-x={}', ad['video_x'])
         if 'video_y' in ad:
-            argl.append('--video-y={}'.format(ad['video_y']))
+            appendArg('--video-y={}', ad['video_y'])
         if "playspeed" in ad:
-            argl.append("--rate={}".format(ad["playspeed"]))
+            appendArg("--rate={}", ad["playspeed"])
         # Maybe we should throw an exception even earlier,
         # if ad['video_url'] isn't there.
-        argl.append(ad['video_url'])
+        appendArg(ad['video_url'])
         return argl
 
 

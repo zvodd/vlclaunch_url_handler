@@ -55,12 +55,13 @@ def register_execatuble_class(exename, location):
     """
     Apperently registering an exe in:
         "HKEY_CLASSES_ROOT\Applications"
-    is pretty useless.
+    It registers an application classes, for right click menus.
+    It's not actually relevent for finding a execateable
+     with the Win+R run command
     Did you know you can't set the type of a '(Default)' key in regedit.exe?
     i.e. Setting 'HKCR\Applications\python.exe\Shell\Open\Command\(Default)'
     to 'REG_EXPAND_SZ' from 'REG_SZ' is impossible using the regedit GUI.
     """
-    #register in application classes.... for right click menus... woops
     subkey = "Applications\\"+ exename +r"\Shell\Open\Command"
     with wr.CreateKeyEx(wr.HKEY_CLASSES_ROOT, subkey, 0, wr.KEY_WRITE) as key:
         wr.SetValueEx(key, "", 0, wr.REG_EXPAND_SZ, '"{}" "%1"'.format(location))
@@ -68,41 +69,3 @@ def register_execatuble_class(exename, location):
 if __name__ == "__main__":
     register_executable_location('pythonw.exe', PATH_TO_PYTHON)
     # register_executable_location('python.exe', PATH_TO_PYTHON)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
